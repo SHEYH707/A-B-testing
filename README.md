@@ -107,7 +107,7 @@ A_B_tests/
 │   ├── validator.py
 │   └── visualizer.py
 ├── tests/
-│   └── test_ab_analysis.py
+│   └── test_ab.py
 ├── .gitignore
 ├── environment.yml
 ├── main.py
