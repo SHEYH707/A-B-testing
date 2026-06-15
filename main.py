@@ -1,12 +1,11 @@
 """Точка входа в приложение анализа A/B-тестов."""
 
-from src.gui import ABapp
+from src.gui import run_app
 
 
 def main() -> None:
     """Запустить графическое приложение."""
-    app = ABapp()
-    app.run()
+    run_app()
 
 
 if __name__ == "__main__":
