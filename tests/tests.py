@@ -2,9 +2,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from src.analyzer import calculate_significance, calculate_statistics, prepare_data
-from src.data_load import LoadError, load_csv
+from src.data_load import load_csv
 from src.report import build_report
-from src.validator import ValidationError, validate_dataframe
+from src.validator import validate_dataframe
 
 
 def create_test_data() -> pd.DataFrame:
@@ -21,7 +21,7 @@ def create_test_data() -> pd.DataFrame:
             ],
             "group": ["control", "treatment", "control", "treatment", "control", "treatment"],
             "landing_page": ["old_page", "new_page", "old_page", "new_page", "old_page", "new_page"],
-            "converted": [0, 1, 1, 0, 0, 1],
+            "converted": [0, 1, 1, 0, 0, 1]
         }
     )
 
@@ -31,35 +31,31 @@ def test_load_csv(tmp_path: Path) -> None:
     create_test_data().to_csv(file_path, index=False)
 
     data = load_csv(file_path)
-
     assert len(data) == 6
     assert list(data.columns) == ["user_id", "timestamp", "group", "landing_page", "converted"]
 
 
 def test_missing_file(tmp_path: Path) -> None:
-    with pytest.raises(LoadError):
+    with pytest.raises(ValueError):
         load_csv(tmp_path / "missing.csv")
 
 
 def test_validate_dataframe() -> None:
     data = validate_dataframe(create_test_data())
-
     assert pd.api.types.is_datetime64_any_dtype(data["timestamp"])
     assert data["converted"].dtype == "int8"
 
 
 def test_missing_column() -> None:
     data = create_test_data().drop(columns="converted")
-
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validate_dataframe(data)
 
 
 def test_invalid_converted() -> None:
     data = create_test_data()
     data.loc[0, "converted"] = 2
-
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validate_dataframe(data)
 
 
@@ -71,10 +67,8 @@ def test_prepare_data_removes() -> None:
     invalid_row["landing_page"] = "old_page"
 
     duplicate_row = data.iloc[[1]].copy()
-
     extended_data = pd.concat([data, invalid_row, duplicate_row], ignore_index=True)
     cleaned_data, cleaning_info = prepare_data(extended_data)
-
     assert len(cleaned_data) == 6
     assert cleaning_info["loaded_rows"] == 8
     assert cleaning_info["inconsistent_rows"] == 1
